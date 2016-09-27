@@ -1,0 +1,148 @@
+<html lang="en">
+
+{% load runner_tags %}
+<head>
+  <link rel="stylesheet" href="/static/css/angular-material.min.css">
+  <link rel="stylesheet" href="/static/css/md-data-table.css">
+  <link rel="stylesheet" href="https://fonts.googleapis.com/icon?family=Material+Icons">
+  <script type="text/javascript" src="/static/js/jquery.min.js"></script>
+  <script src="/static/js/angular.min.js"></script>
+  <script src="/static/js/angular-animate.min.js"></script>
+  <script src="/static/js/angular-aria.min.js"></script>
+  <script src="/static/js/angular-messages.min.js"></script>
+  <script src="/static/js/angular-material.min.js"></script>
+  <script src="/static/js/md-data-table.js"></script>
+  <script src="/static/js/app.js"></script>
+  <style>
+    .text-success {
+      color: green;
+    }
+    .text-failed {
+      color: red;
+    }
+
+  </style>
+  <script language="javascript">
+    
+  </script>
+</head>
+<body ng-app="snapshot"  ng-controller="cardController">
+  <md-toolbar class="md-info">
+    <div class="md-toolbar-tools">
+      <h2 class="md-flex">Proftbricks</h2>
+    </div>
+  </md-toolbar>
+  <md-content layout-padding> <!--flex="70"-->
+  <!-- create test form -->
+  <md-card>
+         <md-card-header>
+            <md-card-header-text>
+               <span class="md-title">Create new test</span>
+            </md-card-header-text>
+         </md-card-header>
+         <md-card-content>
+     <form name="projectForm" ng-submit="saveTestCase()" role="form" >
+
+      <div layout="row">
+          <md-input-container class="md-block" flex="50">
+            <label>Requester</label>
+            <input md-maxlength="30" required="" md-no-asterisk="" name="requester" ng-model="project.requester">
+            <div ng-messages="projectForm.requester.$error">
+              <div ng-message="required">This is required.</div>
+              <div ng-message="md-maxlength">The requester name must be less than 30 characters long.</div>
+            </div>
+          </md-input-container>
+          
+          <md-input-container flex="50">
+          <label>Test environment ID</label>
+          <md-select name="environment" ng-model="project.environment" required="">
+            {% get_envids as envids %}
+            {% for i in envids %}
+                <md-option value={{i}}> {{i}}</md-option>
+            {% endfor %}
+          </md-select>
+          <div ng-messages="projectForm.environment.$error">
+            <div ng-message="required">This is required.</div>
+          </div>
+        </md-input-container>
+      </div>
+
+      <div layout="row">
+        <md-input-container flex="50">
+          <label>Interface Type</label>
+          <md-select name="interface" ng-model="project.interface">
+            <md-option value="interface_one">interface_one</md-option>
+            <md-option value="interface_two">interface_two</md-option>
+          </md-select>
+        </md-input-container>
+
+        <md-input-container flex="50">
+          <label>Test case type</label>
+          <md-select name="testcase" ng-model="project.testcase" multiple="true" required="">
+            {% get_tests as tests %}
+            {% for test in tests %}
+                <md-option value="{{test}}">{{test}}</md-option>
+            {% endfor %}
+          </md-select>
+          <div ng-messages="projectForm.testcase.$error">
+            <div ng-message="required">This is required.</div>
+          </div>
+        </md-input-container>
+      </div>
+
+      <div flex="100">
+        <md-button flex="100" class="md-primary md-raised" type="submit">Submit</md-button>
+      </div>
+    </form>
+         </md-card-content>
+      </md-card><br/>
+  <!-- list of tests -->
+  <md-card>
+    <md-card-actions layout="row" layout-align="start center">
+      <span class="md-headline">Test execution requests</span>
+      <md-button></md-button>
+      <md-card-icon-actions>
+        <md-button class="md-icon-button" aria-label="icon">
+          <md-icon class="material-icons" ng-click="refresh()">refresh</md-icon>
+        </md-button>
+      </md-card-icon-actions>
+    </md-card-actions>
+    </div>
+    </md-toolbar>
+    <md-card-content>
+      <!-- Table data -->
+      <md-table-container>
+        <table md-table ng-model="selected" md-progress="promise">
+          <thead md-head md-order="query.order" md-on-reorder="getClient">
+            <tr md-row>
+              <th md-column>Id</th>
+              <th md-column md-order-by="nameToLower">
+                <span>Requester</span>
+              </th>
+              <th md-column>
+                <span>Environment</span>
+              </th>
+              <th md-column>interface</th>
+              <th md-column>testcase</th>
+              <th md-column>status</th>
+            </tr>
+          </thead>
+          <tbody md-body>
+            <tr md-row ng-repeat="client in clients">
+              <td md-cell><a href="/testcase/{$client.id$}">{$client.id$}</td>
+              <td md-cell>{$client.requester$}</td>
+              <td md-cell>{$client.environment$}</td>
+              <td md-cell>{$client.interface$}</td>
+              <td md-cell>{$client.testcase$}</td>
+              <td md-cell>
+                <strong class="text-{$client.status$}"><p>{$client.status$}</p></strong><p>pass:{$ client.success $}, fail:{$ client.fail $}</p>
+              </td>
+            </tr>
+          </tbody>
+        </table>
+      </md-table-container>
+    </md-card-content>
+  </md-card>
+  </md-content>
+</body>
+</html>
